@@ -177,25 +177,6 @@ test('req.url will be obtained from input request req.path when input request ur
   }
 })
 
-test('req.url will be obtained from input request url.path when input request url is an object', function (t) {
-  t.plan(1)
-
-  const server = http.createServer(handler)
-  server.unref()
-  server.listen(0, () => {
-    http.get(server.address(), () => {})
-  })
-
-  t.teardown(() => server.close())
-
-  function handler (req, res) {
-    req.url = { path: '/test' }
-    const serialized = serializers.reqSerializer(req)
-    t.equal(serialized.url, '/test')
-    res.end()
-  }
-})
-
 test('req.url will be obtained from input request url when input request url is not an object', function (t) {
   t.plan(1)
 
@@ -270,6 +251,25 @@ test('req.url will be obtained from input request url when req path is a functio
     req.url = '/test'
     const serialized = serializers.reqSerializer(req)
     t.equal(serialized.url, '/test')
+    res.end()
+  }
+})
+
+test('req.url being undefined does not throw an error', function (t) {
+  t.plan(1)
+
+  const server = http.createServer(handler)
+  server.unref()
+  server.listen(0, () => {
+    http.get(server.address(), () => {})
+  })
+
+  t.teardown(() => server.close())
+
+  function handler (req, res) {
+    req.url = undefined
+    const serialized = serializers.reqSerializer(req)
+    t.equal(serialized.url, undefined)
     res.end()
   }
 })
